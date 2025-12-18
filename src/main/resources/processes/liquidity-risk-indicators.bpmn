@@ -48,18 +48,44 @@
     </bpmn2:userTask>
 
     <!-- Service Task: Retrieve Data from SRS Phase 1 -->
-    <bpmn2:serviceTask id="ServiceTask_RetrieveData"
-                       name="Retrieve Data from SRS Phase 1"
-                       implementation="##WebService"
-                       operationRef="Operation_1">
+    <bpmn2:task id="ServiceTask_RetrieveData"
+                name="Retrieve Data from SRS Phase 1"
+                tns:taskName="DataRetrieval">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>kcontext.setVariable("report", report);</tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>kcontext.setVariable("report", report);</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
       <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
       <bpmn2:ioSpecification>
-        <bpmn2:dataInput id="DataInput_Report" name="report"/>
-        <bpmn2:dataOutput id="DataOutput_Success" name="success"/>
-        <bpmn2:dataOutput id="DataOutput_Error" name="errorMessage"/>
+        <bpmn2:dataInput id="DataInput_Report" itemSubjectRef="_reportItem" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_Success" itemSubjectRef="_booleanItem" name="success"/>
+        <bpmn2:dataOutput id="DataOutput_Error" itemSubjectRef="_stringItem" name="errorMessage"/>
+        <bpmn2:inputSet>
+          <bpmn2:dataInputRefs>DataInput_Report</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet>
+          <bpmn2:dataOutputRefs>DataOutput_Success</bpmn2:dataOutputRefs>
+          <bpmn2:dataOutputRefs>DataOutput_Error</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
       </bpmn2:ioSpecification>
-    </bpmn2:serviceTask>
+      <bpmn2:dataInputAssociation>
+        <bpmn2:sourceRef>report</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_Report</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation>
+        <bpmn2:sourceRef>DataOutput_Success</bpmn2:sourceRef>
+        <bpmn2:targetRef>success</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+      <bpmn2:dataOutputAssociation>
+        <bpmn2:sourceRef>DataOutput_Error</bpmn2:sourceRef>
+        <bpmn2:targetRef>errorMessage</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:task>
 
     <!-- Gateway: Check Data Retrieval Success -->
     <bpmn2:exclusiveGateway id="Gateway_CheckDataSuccess"
@@ -189,16 +215,27 @@
     </bpmn2:userTask>
 
     <!-- Service Task: Archive Report -->
-    <bpmn2:serviceTask id="ServiceTask_ArchiveReport"
-                       name="Archive Report"
-                       implementation="##WebService"
-                       operationRef="Operation_2">
+    <bpmn2:task id="ServiceTask_ArchiveReport"
+                name="Archive Report"
+                tns:taskName="ArchiveReport">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script>kcontext.setVariable("report", report);</tns:script>
+        </tns:onEntry-script>
+      </bpmn2:extensionElements>
       <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
       <bpmn2:ioSpecification>
-        <bpmn2:dataInput id="DataInput_ArchiveReport" name="report"/>
+        <bpmn2:dataInput id="DataInput_ArchiveReport" itemSubjectRef="_reportItem" name="report"/>
+        <bpmn2:inputSet>
+          <bpmn2:dataInputRefs>DataInput_ArchiveReport</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
       </bpmn2:ioSpecification>
-    </bpmn2:serviceTask>
+      <bpmn2:dataInputAssociation>
+        <bpmn2:sourceRef>report</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_ArchiveReport</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+    </bpmn2:task>
 
     <!-- Script Task: Final Status Update -->
     <bpmn2:scriptTask id="ScriptTask_FinalStatus"
@@ -265,14 +302,5 @@
 
   <!-- Error Definitions -->
   <bpmn2:error id="Error_DataNotFound" errorCode="DATA_NOT_FOUND" name="Data Not Found"/>
-
-  <!-- Interface and Operation Definitions -->
-  <bpmn2:interface id="Interface_1" name="Data Retrieval Interface">
-    <bpmn2:operation id="Operation_1" name="RetrieveData"/>
-  </bpmn2:interface>
-
-  <bpmn2:interface id="Interface_2" name="Archive Interface">
-    <bpmn2:operation id="Operation_2" name="ArchiveReport"/>
-  </bpmn2:interface>
 
 </bpmn2:definitions>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<deployment-descriptor xsi:schemaLocation="http://www.jboss.org/jbpm deployment-descriptor.xsd"
-                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<deployment-descriptor xmlns="http://www.jboss.org/jbpm"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://www.jboss.org/jbpm deployment-descriptor.xsd">
 
     <persistence-unit>org.jbpm.domain</persistence-unit>
     <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>

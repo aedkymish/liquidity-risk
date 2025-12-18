@@ -6,15 +6,7 @@
     <kbase name="liquidityRiskKBase" packages="processes" default="true" eventProcessingMode="stream">
 
         <!-- KSession for process execution -->
-        <ksession name="liquidityRiskKSession" type="stateful" default="true" clockType="realtime">
-
-            <!-- Configuration -->
-            <configuration>
-                <property key="drools.processSignalManagerFactory" value="org.jbpm.process.instance.event.DefaultSignalManagerFactory"/>
-                <property key="drools.processInstanceManagerFactory" value="org.jbpm.process.instance.ProcessInstanceManagerFactory"/>
-            </configuration>
-
-        </ksession>
+        <ksession name="liquidityRiskKSession" type="stateful" default="true" clockType="realtime"/>
 
     </kbase>
 
