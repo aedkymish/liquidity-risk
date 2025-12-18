@@ -21,48 +21,19 @@
         <event-listener>
             <resolver>mvel</resolver>
             <identifier>new org.jbpm.process.audit.JPAProcessInstanceDbLog()</identifier>
-            <parameters/>
-        </event-listener>
-        <event-listener>
-            <resolver>mvel</resolver>
-            <identifier>new org.jbpm.process.audit.JPAWorkingMemoryDbLogger()</identifier>
-            <parameters/>
         </event-listener>
     </event-listeners>
-
-    <!-- Task Event Listeners -->
-    <task-event-listeners>
-        <task-event-listener>
-            <resolver>mvel</resolver>
-            <identifier>new org.jbpm.services.task.audit.JPATaskLifeCycleEventListener()</identifier>
-            <parameters/>
-        </task-event-listener>
-    </task-event-listeners>
 
     <!-- Work Item Handlers -->
     <work-item-handlers>
         <work-item-handler>
             <resolver>mvel</resolver>
-            <identifier>new org.jbpm.process.workitem.rest.RESTWorkItemHandler()</identifier>
-            <parameters/>
-            <name>Rest</name>
-        </work-item-handler>
-        <work-item-handler>
-            <resolver>mvel</resolver>
-            <identifier>new org.jbpm.process.workitem.email.EmailWorkItemHandler()</identifier>
-            <parameters/>
-            <name>Email</name>
-        </work-item-handler>
-        <work-item-handler>
-            <resolver>mvel</resolver>
             <identifier>new com.wahda.liquidity.handler.DataRetrievalWorkItemHandler()</identifier>
-            <parameters/>
             <name>DataRetrieval</name>
         </work-item-handler>
         <work-item-handler>
             <resolver>mvel</resolver>
             <identifier>new com.wahda.liquidity.handler.ArchiveWorkItemHandler()</identifier>
-            <parameters/>
             <name>ArchiveReport</name>
         </work-item-handler>
     </work-item-handlers>
@@ -73,7 +44,7 @@
     <!-- Configuration -->
     <configuration/>
 
-    <!-- Required Roles for accessing this deployment -->
+    <!-- Required Roles -->
     <required-roles>
         <required-role>admin</required-role>
         <required-role>risk-employee</required-role>
@@ -87,7 +58,6 @@
         <remoteable-class>com.wahda.liquidity.model.LiquidityIndicator</remoteable-class>
     </remoteable-classes>
 
-    <!-- Limit Serialization Classes -->
     <limit-serialization-classes>true</limit-serialization-classes>
 
 </deployment-descriptor>
