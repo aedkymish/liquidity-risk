@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns="http://www.drools.org/xsd/kmodule"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Liquidity Risk Indicators KBase -->
+    <kbase name="liquidityRiskKBase" packages="processes" default="true" eventProcessingMode="stream">
+
+        <!-- KSession for process execution -->
+        <ksession name="liquidityRiskKSession" type="stateful" default="true" clockType="realtime">
+
+            <!-- Work Item Handlers -->
+            <workItemHandlers>
+                <workItemHandler name="DataRetrieval"
+                                type="MVEL"
+                                resolver="new com.wahda.liquidity.handler.DataRetrievalWorkItemHandler()"/>
+                <workItemHandler name="ArchiveReport"
+                                type="MVEL"
+                                resolver="new com.wahda.liquidity.handler.ArchiveWorkItemHandler()"/>
+            </workItemHandlers>
+
+            <!-- Event Listeners -->
+            <listeners>
+                <!-- Process Event Listener -->
+                <processEventListener type="MVEL">
+                    <listener>org.jbpm.process.instance.event.listeners.TriggerRulesEventListener</listener>
+                </processEventListener>
+
+                <!-- Agenda Event Listener for debugging -->
+                <agendaEventListener type="MVEL">
+                    <listener>org.kie.api.event.rule.DebugAgendaEventListener</listener>
+                </agendaEventListener>
+
+                <!-- Rule Runtime Event Listener for debugging -->
+                <ruleRuntimeEventListener type="MVEL">
+                    <listener>org.kie.api.event.rule.DebugRuleRuntimeEventListener</listener>
+                </ruleRuntimeEventListener>
+            </listeners>
+
+            <!-- Marshalling Strategies for complex objects -->
+            <marshalling-strategies>
+                <marshalling-strategy>org.jbpm.document.marshalling.DocumentMarshallingStrategy</marshalling-strategy>
+            </marshalling-strategies>
+
+            <!-- Configuration -->
+            <configuration>
+                <property key="drools.processSignalManagerFactory" value="org.jbpm.process.instance.event.DefaultSignalManagerFactory"/>
+                <property key="drools.processInstanceManagerFactory" value="org.jbpm.process.instance.ProcessInstanceManagerFactory"/>
+            </configuration>
+
+        </ksession>
+
+    </kbase>
+
+</kmodule>

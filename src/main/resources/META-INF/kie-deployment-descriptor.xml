@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<deployment-descriptor xsi:schemaLocation="http://www.jboss.org/jbpm deployment-descriptor.xsd"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <persistence-unit>org.jbpm.domain</persistence-unit>
+    <audit-persistence-unit>org.jbpm.domain</audit-persistence-unit>
+    <audit-mode>JPA</audit-mode>
+    <persistence-mode>JPA</persistence-mode>
+    <runtime-strategy>PER_PROCESS_INSTANCE</runtime-strategy>
+
+    <!-- Marshalling Strategies -->
+    <marshalling-strategies>
+        <marshalling-strategy>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.document.marshalling.DocumentMarshallingStrategy()</identifier>
+        </marshalling-strategy>
+    </marshalling-strategies>
+
+    <!-- Event Listeners -->
+    <event-listeners>
+        <event-listener>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.process.audit.JPAProcessInstanceDbLog()</identifier>
+            <parameters/>
+        </event-listener>
+        <event-listener>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.process.audit.JPAWorkingMemoryDbLogger()</identifier>
+            <parameters/>
+        </event-listener>
+    </event-listeners>
+
+    <!-- Task Event Listeners -->
+    <task-event-listeners>
+        <task-event-listener>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.services.task.audit.JPATaskLifeCycleEventListener()</identifier>
+            <parameters/>
+        </task-event-listener>
+    </task-event-listeners>
+
+    <!-- Work Item Handlers -->
+    <work-item-handlers>
+        <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.process.workitem.rest.RESTWorkItemHandler()</identifier>
+            <parameters/>
+            <name>Rest</name>
+        </work-item-handler>
+        <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new org.jbpm.process.workitem.email.EmailWorkItemHandler()</identifier>
+            <parameters/>
+            <name>Email</name>
+        </work-item-handler>
+        <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new com.wahda.liquidity.handler.DataRetrievalWorkItemHandler()</identifier>
+            <parameters/>
+            <name>DataRetrieval</name>
+        </work-item-handler>
+        <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new com.wahda.liquidity.handler.ArchiveWorkItemHandler()</identifier>
+            <parameters/>
+            <name>ArchiveReport</name>
+        </work-item-handler>
+    </work-item-handlers>
+
+    <!-- Environment Entries -->
+    <environment-entries/>
+
+    <!-- Configuration -->
+    <configuration/>
+
+    <!-- Required Roles for accessing this deployment -->
+    <required-roles>
+        <required-role>admin</required-role>
+        <required-role>risk-employee</required-role>
+        <required-role>risk-manager</required-role>
+        <required-role>risk-director</required-role>
+    </required-roles>
+
+    <!-- Remoteable Classes -->
+    <remoteable-classes>
+        <remoteable-class>com.wahda.liquidity.model.LiquidityReport</remoteable-class>
+        <remoteable-class>com.wahda.liquidity.model.LiquidityIndicator</remoteable-class>
+    </remoteable-classes>
+
+    <!-- Limit Serialization Classes -->
+    <limit-serialization-classes>true</limit-serialization-classes>
+
+</deployment-descriptor>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                   xmlns:tns="http://www.jboss.org/drools"
+                   xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+                   id="Definitions_1"
+                   targetNamespace="http://www.jboss.org/drools">
+
+  <bpmn2:process id="LiquidityRiskIndicators"
+                 name="Liquidity Risk Indicators Process"
+                 isExecutable="true"
+                 processType="Private">
+
+    <!-- Process Variables -->
+    <bpmn2:property id="report" name="report" itemSubjectRef="_reportItem"/>
+    <bpmn2:property id="selectedYear" name="selectedYear" itemSubjectRef="_integerItem"/>
+    <bpmn2:property id="selectedQuarterRange" name="selectedQuarterRange" itemSubjectRef="_stringItem"/>
+    <bpmn2:property id="employeeComment" name="employeeComment" itemSubjectRef="_stringItem"/>
+    <bpmn2:property id="managerComment" name="managerComment" itemSubjectRef="_stringItem"/>
+    <bpmn2:property id="managerDecision" name="managerDecision" itemSubjectRef="_stringItem"/>
+    <bpmn2:property id="errorMessage" name="errorMessage" itemSubjectRef="_stringItem"/>
+    <bpmn2:property id="success" name="success" itemSubjectRef="_booleanItem"/>
+
+    <!-- Start Event -->
+    <bpmn2:startEvent id="StartEvent_1" name="Start Liquidity Risk Process">
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+
+    <!-- Screen 1: Period Selection -->
+    <bpmn2:userTask id="UserTask_PeriodSelection"
+                    name="Screen 1: Period Selection">
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:incoming>SequenceFlow_FromReturnToEmployee</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_Year" name="TaskName"/>
+        <bpmn2:dataOutput id="DataOutput_Year" name="selectedYear"/>
+        <bpmn2:dataOutput id="DataOutput_Quarter" name="selectedQuarterRange"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:potentialOwner>
+        <bpmn2:resourceAssignmentExpression>
+          <bpmn2:formalExpression>#{report.employeeId}</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+
+    <!-- Service Task: Retrieve Data from SRS Phase 1 -->
+    <bpmn2:serviceTask id="ServiceTask_RetrieveData"
+                       name="Retrieve Data from SRS Phase 1"
+                       implementation="##WebService"
+                       operationRef="Operation_1">
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_Report" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_Success" name="success"/>
+        <bpmn2:dataOutput id="DataOutput_Error" name="errorMessage"/>
+      </bpmn2:ioSpecification>
+    </bpmn2:serviceTask>
+
+    <!-- Gateway: Check Data Retrieval Success -->
+    <bpmn2:exclusiveGateway id="Gateway_CheckDataSuccess"
+                            name="Data Retrieved Successfully?"
+                            gatewayDirection="Diverging">
+      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_DataSuccess</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_DataFailure</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+
+    <!-- Error Event: Data Not Available -->
+    <bpmn2:endEvent id="EndEvent_DataError" name="Data Not Available Error">
+      <bpmn2:incoming>SequenceFlow_DataFailure</bpmn2:incoming>
+      <bpmn2:errorEventDefinition errorRef="Error_DataNotFound"/>
+    </bpmn2:endEvent>
+
+    <!-- Screen 2: Liquidity Risk Indicators Display -->
+    <bpmn2:userTask id="UserTask_IndicatorsDisplay"
+                    name="Screen 2: Liquidity Risk Indicators">
+      <bpmn2:incoming>SequenceFlow_DataSuccess</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_Indicators" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_Comment" name="employeeComment"/>
+        <bpmn2:dataOutput id="DataOutput_Action" name="action"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:potentialOwner>
+        <bpmn2:resourceAssignmentExpression>
+          <bpmn2:formalExpression>#{report.employeeId}</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+
+    <!-- Script Task: Update Report Status -->
+    <bpmn2:scriptTask id="ScriptTask_UpdateStatus1"
+                      name="Update Status to Submitted"
+                      scriptFormat="http://www.java.com/java">
+      <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
+      <bpmn2:script>
+        <![CDATA[
+        report.setStatus("SUBMITTED_TO_MANAGER");
+        report.setCurrentStage("SCREEN_3");
+        report.setSubmittedToManagerDate(new java.util.Date());
+        report.setLastModifiedDate(new java.util.Date());
+        kcontext.setVariable("report", report);
+        ]]>
+      </bpmn2:script>
+    </bpmn2:scriptTask>
+
+    <!-- Screen 3: Manager Review -->
+    <bpmn2:userTask id="UserTask_ManagerReview"
+                    name="Screen 3: Manager Review">
+      <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_ManagerReview" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_ManagerComment" name="managerComment"/>
+        <bpmn2:dataOutput id="DataOutput_ManagerDecision" name="managerDecision"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:potentialOwner>
+        <bpmn2:resourceAssignmentExpression>
+          <bpmn2:formalExpression>#{report.managerId}</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+
+    <!-- Gateway: Manager Decision -->
+    <bpmn2:exclusiveGateway id="Gateway_ManagerDecision"
+                            name="Manager Decision?"
+                            gatewayDirection="Diverging">
+      <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_ManagerApprove</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_ManagerReturn</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+
+    <!-- Script Task: Handle Manager Return -->
+    <bpmn2:scriptTask id="ScriptTask_ManagerReturn"
+                      name="Process Manager Return"
+                      scriptFormat="http://www.java.com/java">
+      <bpmn2:incoming>SequenceFlow_ManagerReturn</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_FromReturnToEmployee</bpmn2:outgoing>
+      <bpmn2:script>
+        <![CDATA[
+        report.setStatus("RETURNED");
+        report.setCurrentStage("SCREEN_1");
+        report.setReturned(true);
+        report.setReturnReason(managerComment);
+        report.setReturnedDate(new java.util.Date());
+        report.setLastModifiedDate(new java.util.Date());
+        kcontext.setVariable("report", report);
+        ]]>
+      </bpmn2:script>
+    </bpmn2:scriptTask>
+
+    <!-- Script Task: Update Status for Director Review -->
+    <bpmn2:scriptTask id="ScriptTask_UpdateStatus2"
+                      name="Update Status to Submitted to Director"
+                      scriptFormat="http://www.java.com/java">
+      <bpmn2:incoming>SequenceFlow_ManagerApprove</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
+      <bpmn2:script>
+        <![CDATA[
+        report.setStatus("SUBMITTED_TO_DIRECTOR");
+        report.setCurrentStage("SCREEN_4");
+        report.setSubmittedToDirectorDate(new java.util.Date());
+        report.setLastModifiedDate(new java.util.Date());
+        kcontext.setVariable("report", report);
+        ]]>
+      </bpmn2:script>
+    </bpmn2:scriptTask>
+
+    <!-- Screen 4: Director Final Approval -->
+    <bpmn2:userTask id="UserTask_DirectorApproval"
+                    name="Screen 4: Director Final Approval">
+      <bpmn2:incoming>SequenceFlow_7</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_DirectorReview" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_DirectorComment" name="directorComment"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:potentialOwner>
+        <bpmn2:resourceAssignmentExpression>
+          <bpmn2:formalExpression>#{report.directorId}</bpmn2:formalExpression>
+        </bpmn2:resourceAssignmentExpression>
+      </bpmn2:potentialOwner>
+    </bpmn2:userTask>
+
+    <!-- Service Task: Archive Report -->
+    <bpmn2:serviceTask id="ServiceTask_ArchiveReport"
+                       name="Archive Report"
+                       implementation="##WebService"
+                       operationRef="Operation_2">
+      <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
+      <bpmn2:ioSpecification>
+        <bpmn2:dataInput id="DataInput_ArchiveReport" name="report"/>
+      </bpmn2:ioSpecification>
+    </bpmn2:serviceTask>
+
+    <!-- Script Task: Final Status Update -->
+    <bpmn2:scriptTask id="ScriptTask_FinalStatus"
+                      name="Update Final Status"
+                      scriptFormat="http://www.java.com/java">
+      <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_10</bpmn2:outgoing>
+      <bpmn2:script>
+        <![CDATA[
+        report.setStatus("APPROVED");
+        report.setApprovedDate(new java.util.Date());
+        report.setArchivedDate(new java.util.Date());
+        report.setLastModifiedDate(new java.util.Date());
+        kcontext.setVariable("report", report);
+        System.out.println("Liquidity Risk Report " + report.getReportId() + " has been approved and archived.");
+        ]]>
+      </bpmn2:script>
+    </bpmn2:scriptTask>
+
+    <!-- End Event -->
+    <bpmn2:endEvent id="EndEvent_1" name="Process Completed">
+      <bpmn2:incoming>SequenceFlow_10</bpmn2:incoming>
+    </bpmn2:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="StartEvent_1" targetRef="UserTask_PeriodSelection"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_2" sourceRef="UserTask_PeriodSelection" targetRef="ServiceTask_RetrieveData"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_3" sourceRef="ServiceTask_RetrieveData" targetRef="Gateway_CheckDataSuccess"/>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_DataSuccess" name="Success" sourceRef="Gateway_CheckDataSuccess" targetRef="UserTask_IndicatorsDisplay">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">#{success == true}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_DataFailure" name="Data Not Found" sourceRef="Gateway_CheckDataSuccess" targetRef="EndEvent_DataError">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">#{success == false}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_4" sourceRef="UserTask_IndicatorsDisplay" targetRef="ScriptTask_UpdateStatus1"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_5" sourceRef="ScriptTask_UpdateStatus1" targetRef="UserTask_ManagerReview"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_6" sourceRef="UserTask_ManagerReview" targetRef="Gateway_ManagerDecision"/>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_ManagerApprove" name="Submit" sourceRef="Gateway_ManagerDecision" targetRef="ScriptTask_UpdateStatus2">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">#{managerDecision == 'SUBMIT'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_ManagerReturn" name="Return to Employee" sourceRef="Gateway_ManagerDecision" targetRef="ScriptTask_ManagerReturn">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression">#{managerDecision == 'RETURN'}</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_FromReturnToEmployee" sourceRef="ScriptTask_ManagerReturn" targetRef="UserTask_PeriodSelection"/>
+
+    <bpmn2:sequenceFlow id="SequenceFlow_7" sourceRef="ScriptTask_UpdateStatus2" targetRef="UserTask_DirectorApproval"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_8" sourceRef="UserTask_DirectorApproval" targetRef="ServiceTask_ArchiveReport"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_9" sourceRef="ServiceTask_ArchiveReport" targetRef="ScriptTask_FinalStatus"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_10" sourceRef="ScriptTask_FinalStatus" targetRef="EndEvent_1"/>
+
+  </bpmn2:process>
+
+  <!-- Item Definitions -->
+  <bpmn2:itemDefinition id="_reportItem" structureRef="com.wahda.liquidity.model.LiquidityReport"/>
+  <bpmn2:itemDefinition id="_stringItem" structureRef="java.lang.String"/>
+  <bpmn2:itemDefinition id="_integerItem" structureRef="java.lang.Integer"/>
+  <bpmn2:itemDefinition id="_booleanItem" structureRef="java.lang.Boolean"/>
+
+  <!-- Error Definitions -->
+  <bpmn2:error id="Error_DataNotFound" errorCode="DATA_NOT_FOUND" name="Data Not Found"/>
+
+  <!-- Interface and Operation Definitions -->
+  <bpmn2:interface id="Interface_1" name="Data Retrieval Interface">
+    <bpmn2:operation id="Operation_1" name="RetrieveData"/>
+  </bpmn2:interface>
+
+  <bpmn2:interface id="Interface_2" name="Archive Interface">
+    <bpmn2:operation id="Operation_2" name="ArchiveReport"/>
+  </bpmn2:interface>
+
+</bpmn2:definitions>
