@@ -266,6 +266,7 @@
         <bpmn2:inputSet id="InputSet_6">
           <bpmn2:dataInputRefs>DataInput_9</bpmn2:dataInputRefs>
         </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_6"/>
       </bpmn2:ioSpecification>
       <bpmn2:dataInputAssociation id="DataInputAssociation_9">
         <bpmn2:sourceRef>report</bpmn2:sourceRef>
