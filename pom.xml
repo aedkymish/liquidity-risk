@@ -8,7 +8,7 @@
     <groupId>com.wahda.bank</groupId>
     <artifactId>liquidity-risk-jbpm</artifactId>
     <version>2.3.0</version>
-    <packaging>kjar</packaging>
+    <packaging>jar</packaging>
 
     <name>Liquidity Risk Indicators - jBPM Process</name>
     <description>
@@ -110,6 +110,27 @@
             <artifactId>jbpm-test</artifactId>
             <version>${version.org.jbpm}</version>
             <scope>test</scope>
+            <exclusions>
+                <!-- Exclude com.sun:tools - not available in Java 11+ -->
+                <exclusion>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- jBPM Test Coverage - alternative for testing without tools.jar dependency -->
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-test-coverage</artifactId>
+            <version>${version.org.jbpm}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -126,13 +147,14 @@
                 </configuration>
             </plugin>
 
-            <!-- KIE Maven Plugin for KJAR Packaging -->
+            <!-- KIE Maven Plugin - commented out due to repository access issues
             <plugin>
                 <groupId>org.kie</groupId>
                 <artifactId>kie-maven-plugin</artifactId>
                 <version>${version.org.kie}</version>
                 <extensions>true</extensions>
             </plugin>
+            -->
 
             <!-- Maven Resources Plugin -->
             <plugin>
