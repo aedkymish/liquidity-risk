@@ -5,6 +5,7 @@
                    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                    xmlns:drools="http://www.jboss.org/drools"
+                   xmlns:tns="http://www.jboss.org/drools"
                    xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
                    id="Definitions_1"
                    targetNamespace="http://www.jboss.org/drools">
@@ -80,7 +81,7 @@
     </bpmn2:userTask>
 
     <!-- Service Task: Retrieve Data -->
-    <bpmn2:task id="Task_RetrieveData" name="Retrieve Data from SRS" drools:taskName="DataRetrieval">
+    <bpmn2:task id="Task_RetrieveData" name="Retrieve Data from SRS" tns:taskName="DataRetrieval">
       <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
       <bpmn2:ioSpecification id="InputOutputSpecification_2">
@@ -258,7 +259,7 @@
     </bpmn2:userTask>
 
     <!-- Service Task: Archive -->
-    <bpmn2:task id="Task_Archive" name="Archive Report" drools:taskName="ArchiveReport">
+    <bpmn2:task id="Task_Archive" name="Archive Report" tns:taskName="ArchiveReport">
       <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
       <bpmn2:ioSpecification id="InputOutputSpecification_6">
