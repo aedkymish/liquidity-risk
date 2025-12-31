@@ -5,6 +5,7 @@
                    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
                    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                    xmlns:drools="http://www.jboss.org/drools"
+                   xmlns:tns="http://www.jboss.org/drools"
                    xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
                    id="Definitions_1"
                    targetNamespace="http://www.jboss.org/drools">
@@ -79,16 +80,29 @@
       </bpmn2:potentialOwner>
     </bpmn2:userTask>
 
-    <!-- Script Task: Retrieve Data (simplified for Business Central compatibility) -->
-    <bpmn2:scriptTask id="Task_RetrieveData" name="Retrieve Data from SRS" scriptFormat="http://www.java.com/java">
+    <!-- Service Task: Retrieve Data -->
+    <bpmn2:task id="Task_RetrieveData" name="Retrieve Data from SRS" tns:taskName="DataRetrieval">
       <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
-      <bpmn2:script><![CDATA[System.out.println("Retrieving data from SRS for year: " + kcontext.getVariable("selectedYear"));
-System.out.println("Quarter range: " + kcontext.getVariable("selectedQuarterRange"));
-// Set success flag
-kcontext.setVariable("success", true);
-System.out.println("Data retrieval simulated - success=true");]]></bpmn2:script>
-    </bpmn2:scriptTask>
+      <bpmn2:ioSpecification id="InputOutputSpecification_2">
+        <bpmn2:dataInput id="DataInput_2" itemSubjectRef="_reportItem" name="report"/>
+        <bpmn2:dataOutput id="DataOutput_3" itemSubjectRef="_booleanItem" name="success"/>
+        <bpmn2:inputSet id="InputSet_2">
+          <bpmn2:dataInputRefs>DataInput_2</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_2">
+          <bpmn2:dataOutputRefs>DataOutput_3</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_2">
+        <bpmn2:sourceRef>report</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_2</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation id="DataOutputAssociation_3">
+        <bpmn2:sourceRef>DataOutput_3</bpmn2:sourceRef>
+        <bpmn2:targetRef>success</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:task>
 
     <!-- Gateway: Check Data -->
     <bpmn2:exclusiveGateway id="Gateway_DataCheck" name="Data Found?" gatewayDirection="Diverging">
@@ -244,15 +258,22 @@ System.out.println("Data retrieval simulated - success=true");]]></bpmn2:script>
       </bpmn2:potentialOwner>
     </bpmn2:userTask>
 
-    <!-- Script Task: Archive (simplified for Business Central compatibility) -->
-    <bpmn2:scriptTask id="Task_Archive" name="Archive Report" scriptFormat="http://www.java.com/java">
+    <!-- Service Task: Archive -->
+    <bpmn2:task id="Task_Archive" name="Archive Report" tns:taskName="ArchiveReport">
       <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
-      <bpmn2:script><![CDATA[System.out.println("Archiving liquidity risk report...");
-System.out.println("Report for year: " + kcontext.getVariable("selectedYear"));
-System.out.println("Quarter range: " + kcontext.getVariable("selectedQuarterRange"));
-System.out.println("Report archived successfully");]]></bpmn2:script>
-    </bpmn2:scriptTask>
+      <bpmn2:ioSpecification id="InputOutputSpecification_6">
+        <bpmn2:dataInput id="DataInput_9" itemSubjectRef="_reportItem" name="report"/>
+        <bpmn2:inputSet id="InputSet_6">
+          <bpmn2:dataInputRefs>DataInput_9</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_6"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_9">
+        <bpmn2:sourceRef>report</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_9</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+    </bpmn2:task>
 
     <!-- End Event -->
     <bpmn2:endEvent id="EndEvent_Success" name="Success End">
